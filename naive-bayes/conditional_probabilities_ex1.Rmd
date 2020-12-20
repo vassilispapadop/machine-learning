@@ -1,0 +1,60 @@
+---
+title: "Exercise 1 - Conditional Probabilities"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Data
+Assume the data as shown below:
+
+\begin{center}
+\begin{tabular}{c|c|c|c|c}
+\hline
+ Record & A & B & C & Class\\
+\hline
+1 & 0 & 0 & 0 & +\\
+\hline
+2 & 0 & 0 & 1 & -\\
+\hline
+3 & 0 & 1 & 1 & -\\
+\hline
+4 & 0 & 1 & 1 & -\\
+\hline
+5 & 0 & 0 & 1 & +\\
+\hline
+6 & 1 & 0 & 1 & +\\
+\hline
+7 & 1 & 0 & 1 & -\\
+\hline
+8 & 1 & 0 & 1 & -\\
+\hline
+9 & 1 & 1 & 1 & +\\
+\hline
+10 & 1 & 0 & 1 & +\\
+\hline
+\end{tabular}
+\end{center}
+
+## Naive Bayes classifier
+
+Calculate the following conditional probabilities. P(A/+), P(B/+), P(C/+), P(A/-), P(B/-), P(C/-). We start by calculating the probabilities of a record classified either in class + and -.
+\newline
+$$ P(+) = \frac{1}{2}, P(-) = \frac{1}{2} $$ 
+\newline
+$$ P(A = 1 | +) = {3}/{5}, P(A = 1 | -) = \frac{2}{5} $$
+$$ P(B = 1 | +) = \frac{1}{5}, P(B = 1 | -) = \frac{2}{5} $$ 
+$$ P(C = 1 | +) = \frac{4}{5}, P(C = 1 | -) = \frac{5}{5} $$
+$$ P(X|+)P(+) = P(A|+)P(B|+)P(C|+)P(+) = \frac{2}{5} \frac{1}{5} \frac{4}{5} \frac{1}{2} = 0.048 $$
+$$ P(X|-)P(-) = P(A|-)P(B|-)P(C|-)P(-) = \frac{2}{5} \frac{2}{5} \frac{5}{5} \frac{1}{2} = 0.02 $$
+
+Estimate class for sample (A=0, B=1, C=0)
+$$ P(X)=P(A=0)P(B=1)P(C=0) $$
+$$ P(X)=\frac{1}{2} \frac{3}{10} \frac{9}{10} = 0.054 $$
+$$ \frac{P(X|+) P(+)}{P(X)} = \frac{0.048}{0.054} = 0.88 $$
+$$ \frac{P(X|-) P(-)}{P(X)} = \frac{0.02}{0.054} = 0.37 $$
+Thus, the sample is classified to class "+".
+
+

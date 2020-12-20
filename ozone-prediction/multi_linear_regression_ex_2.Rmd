@@ -1,0 +1,141 @@
+---
+title: "Exercise 2 - Multiple Linear Regression"
+output:
+  pdf_document: default
+---
+
+## Load Dataset
+
+We first load ozone dataset and store it into df variable. The dataset consists of 14 columns. First column is the *date* of the observation but won't be used in our analysis. 
+```{r}
+df <- read.table("ozone.txt", header = TRUE, sep=" ")
+df <- df[, 2:ncol(df)]
+attach(df)
+head(df)
+```
+
+Second column labeled as *max03* is the depended variable which we would like to predict by constructing a model from 
+the remaining 12 variables, *temperature(T)*, *neon(Ne)*, *Wx*, *Wind* and *Rain*.
+
+Then we make a simple check for potential missing values in our dataset.
+```{r} 
+head(is.na.data.frame(df))
+```
+
+## Undestanding the data
+
+Once we have validated the integrity of the dataset, we plot the dataset in pairs. We use *pairs* command. In order to keep our plots simple and readable, we will plot *max03* with the 3 main variables, *Temperature*, *Ne*, *Wx* separately.
+
+```{r correlation-plots, fig.show="hold", out.width="50%"}
+pairs(subset(df, select = c(1,2,3,4)))
+pairs(subset(df, select = c(1,5,6,7)))
+pairs(subset(df, select = c(1,8,9,10)))
+pairs(subset(df, select = c(1,11)))
+```
+Intuitively, we could say that max03 levels are more correlated with temperature compared to *Wx9* and *Ne*.
+
+### Pearson coefficient
+
+We've seen before that temperature has a strong correlation with *max03*. In order to measure that relationship we will calculate the Pearson correlation coefficient R.
+Pearson coefficient measures the strength and direction of a linear relationship between two variables. The value of R is always between +1 and –1. Closer to +1 values means there is a very strong positive correlation between variables while closer to -1 a very strong negative correlation. 0 indicates that there is no linear correlation. 
+
+In order to compute coefficient R we use built-in method *cor* and we explicitly ask for pearson method.
+```{r}
+cor_9 = cor(df$T9, df$maxO3, method = c("pearson"))
+cor_12 = cor(df$T12, df$maxO3, method = c("pearson"))
+cor_15 = cor(df$T15, df$maxO3, method = c("pearson"))
+```
+\begin{center}
+\begin{tabular}{c|c|c|c}
+\hline
+  & T9 & T12 & T15\\
+\hline
+r-coeff(max03) & 0.6993865 & 0.7842623 & 0.77457 \\
+\hline
+\end{tabular}
+\end{center}
+We observe that R9, R12 and R15, 0.6993865, 0.7842623, 0.77457 respectively are all positive and close to 1 which indicates a strong positive linear relationship.
+
+## Regression
+
+### Simple Linear Regression
+Previous analysis hinted that *Temperature* varialbe has the strongest correlation with *max03*. For the purposes of the excercise, we will use *Wx15* as a regressor to construct a simple linear model. A simple linear model is expressed mathematically as shown below.
+\newline
+
+\begin{equation} 
+ \hat{y} = \beta_{0} + \beta_{1} x + \epsilon
+\end{equation}
+
+In R, we simply use the command *lm* (linear model) to fit a linear model to observations and *summary* to get basics statistics of the fit.
+```{r}
+simple.model <- lm(df$maxO3 ~ df$Wx15)
+plot(df$Wx15, df$maxO3, main = "Max03 versus Wx15", xlab = "Wx @ 15:00", ylab = "Ozone levels")
+abline(simple.model, col="blue")
+```
+```{r}
+summary(simple.model) 
+```
+Generally, R-squared is the percentage in variation in dependent variable, in this case *max03* that can be explained by the model. It is defined as follows:
+
+\begin{equation} 
+R^{2} = \frac{\text{Variance explained by the model}}{\text{Total variance}}
+\end{equation}
+
+Usually, larger R-squared value indicates a better linear model that fits the observations. Visually, it means that the observed data points are closer to the regression line. Limitation of R-squared coefficient is that it does not provide any information whether our model is biased to the data. R-squared can be misleading when you assess the goodness-of-fit for linear regression analysis. A good model could have a low R-squared value which we will deal with it later by performing a residuals plots analysis.
+
+### Residual Plots
+
+```{r residuals-plots, fig.show="hold", out.width="50%"}
+simple.model.residuals = resid(simple.model)
+simple.model.fitted = fitted.values(simple.model)
+plot(simple.model.fitted, simple.model.residuals, 
+          ylab = "Residuals", 
+          xlab = "Fitted vaules", 
+          main = "Residuals")
+abline(0,0)
+#create Q-Q plot for residuals
+qqnorm(simple.model.residuals)
+#add a straight diagonal line to the plot
+qqline(simple.model.residuals) 
+```
+The x-axis displays the fitted values and the y-axis displays the residuals. From the plot we can see that the spread of the residuals tends to be higher for higher fitted values. Q-Q plot shows that the residuals don't follow a normal distribution as the upper tail tends to stray away for the line.
+
+### Multiple Linear Regression
+
+We will use multiple regressors to predict max03 taking into consideration the 3 variables *T12*, *Ne12* and *Wx12*. Multiple linear regression model is as expressed similarily to (1) but with number of regressors p>1.
+
+\begin{equation} 
+ \hat{y} = \beta_{0} + \beta_{1} x_{9} + \beta_{2} x_{12} + \beta_{3} x_{15}
+\end{equation}
+
+Matrix notation:
+
+\begin{equation} 
+ Y = X \beta + \epsilon
+\end{equation}
+
+
+In R we include the additional variables *Ne12* and *Wx12*.
+
+```{r}
+multi.model <- lm(df$maxO3 ~ df$T12 + df$Ne12 + df$Wx12)
+summary(multi.model) 
+```
+
+As expected, R-squared value is higher than the *simple.model* as it never decreases when new predictors are added. R-squared is encouraging us to make more complex model for the prediction of *max03*. Though, that would result to *overfitting*. Adjusted R-square coefficient is defined as shown below.
+
+\begin{equation}
+AdjustedR^{2} = 1 - (1-R^{2})\frac{n - 1}{n-p-1}
+\end{equation}
+p - number of regressors.
+\newline
+n - sample size.
+
+For every regressor added in the model there is a penalty factor. As the denominator decreases the fraction increases, thus R^{2}-adjusted gets smaller. In case R^{2} is significantly larger with the addition of new regressors then adding new variables to the model was worth it.
+
+
+
+
+
+
+
