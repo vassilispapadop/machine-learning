@@ -2,11 +2,12 @@
 title: "Exercise 2 - Multiple Linear Regression"
 output:
   pdf_document: default
+  word_document: default
 ---
 ## Introduction
 
-In this article we aim to make an accurate linear model prediction of Ozone levels in the atmosphere based on the given dataset. At the beginning we try to gain intuition of the variables by plotting them in pairs and calculate Pearson's correlation coefficient. Then, we construct a simple linear model and study the Adjusted-R2 and R coefficients. We make residuals analysis and Q-Q plots draw conclusions of the model.
-Finally, we follow the best regression selection method by using *regsubsets* command in order to find the best multiple linear model by examine 3 main metrics, adjusted-R2, Cp and BIC.
+In this article we aim to make an accurate linear model prediction of Ozone levels in the atmosphere based on the given dataset. At the beginning we try to gain intuition of the variables by plotting them in pairs and calculate Pearson's correlation coefficient. Then, we construct a simple linear model and study the Adjusted-R2 and R coefficients. We make residuals analysis and Q-Q plots to draw conclusions of the model.
+Finally, we follow the best regression selection method by using *regsubsets* command in order to find the best multiple linear model by examine 4 main metrics, RSS, adjusted-R2, Cp and BIC.
 
 ## Load Dataset
 
@@ -18,17 +19,17 @@ attach(df)
 head(df)
 ```
 
-Second column labeled as *max03* is the depended variable which we would like to predict by constructing a model from 
-the remaining 12 variables, *temperature(T)*, *neon(Ne)*, *Wx*, *Wind* and *Rain*.
+Second column labeled as *max03* is the depended variable which we would like to predict by constructing a model from the remaining 12 variables, *temperature(T)*, *neon(Ne)*, *Wx*, which had been collected at three different times during the day, and two nominal variables *Wind* and *Rain*.
 
-Then we make a simple check for potential missing values in our dataset.
+
+First we make a simple check for potential missing values in our dataset. 
 ```{r} 
 head(is.na.data.frame(df))
 ```
 
 ## Undestanding the data
 
-Once we have validated the integrity of the dataset, we plot the dataset in pairs. We use *pairs* command. In order to keep our plots simple and readable, we will plot *max03* with the 3 main variables, *Temperature*, *Ne*, *Wx* separately.
+Once we have validated the integrity of the dataset, we plot the variables in pairs. We use the built-in command *pairs* which is provided by R. In order to keep our plots simple and readable, we will plot *max03* with the 3 main variables, *Temperature*, *Ne*, *Wx* separately.
 
 ```{r correlation-plots, fig.show="hold", out.width="50%"}
 pairs(subset(df, select = c(1,2,3,4)))
@@ -36,7 +37,7 @@ pairs(subset(df, select = c(1,5,6,7)))
 pairs(subset(df, select = c(1,8,9,10)))
 pairs(subset(df, select = c(1,11)))
 ```
-Intuitively, we could say that max03 levels are more correlated with temperature compared to *Wx9* and *Ne*.
+The main diagonal is the correlation of each variable with itself. Intuitively, we could say that max03 levels are more correlated with temperature compared to *Wx9* and *Ne*. A statistical method to capture any linear correlation which will be used, is Pearson's coefficient.
 
 ### Pearson coefficient
 
@@ -58,17 +59,18 @@ r-coeff(max03) & 0.6993865 & 0.7842623 & 0.77457 \\
 \hline
 \end{tabular}
 \end{center}
-We observe that all values (*0.6993865, 0.7842623, 0.77457*) are positive and close to 1 which indicates a strong positive linear relationship. It's worth mentioning that when adding multiple predictors to the model, we care about features with different Pearson coefficients because it will increase the performance.
+We observe that all values (*0.6993865, 0.7842623, 0.77457*) are positive and close to 1 which indicates a strong positive linear relationship. It's worth mentioning that when adding multiple predictors to the model, we care about features with different Pearson coefficients, even in the case with weak correlation because it will increase the performance by learning the data better.
 
 ## Linear Regression
 
 ### Simple Linear Regression
-Previous analysis hinted that *Temperature* variable has the strongest correlation with *max03*. For the purposes of the excercise, we will use *Wx12* as a regressor to construct a simple linear model. A simple linear model is expressed mathematically as shown below.
+Previous analysis hinted that *Temperature* variable has the strongest correlation with *max03*. For the purposes of the exercise, we will use *Wx12* as a regressor to construct a simple linear model. A simple linear model is expressed mathematically as shown below.
 \newline
 
 \begin{equation} 
  \hat{y} = \beta_{0} + \beta_{1} x + \epsilon
 \end{equation}
+
 The objective is to fit a straight line to the data such that the sum of squared errors are minimized.
 In R, we simply use the command *lm* (linear model) to fit a linear model to observations and *summary* to get basics statistics of the fit.
 ```{r}
@@ -79,15 +81,25 @@ abline(simple.model, col="blue")
 ```{r}
 summary(simple.model) 
 ```
-Generally, R-squared is the percentage in variation in dependent variable, in this case *max03* that can be explained by the model. It is defined as follows:
+The first metric we are interested in, is R-squared or coefficient of determination. R-squared represents the proportion of variance in dependent variable, in this case *max03* that has been explained by the independent variables, in this case *Wx12* in the model. Is it defined as:
 
 \begin{equation} 
 R^{2} = \frac{\text{Variance explained by the model}}{\text{Total variance}}
 \end{equation}
 
-Usually, larger R-squared value indicates a better linear model that fits the observations. Visually, it means that the observed data points are closer to the regression line. Limitation of R-squared coefficient is that it does not provide any information whether our model is biased to the data. R-squared can be misleading when you assess the goodness-of-fit for linear regression analysis. A good model could have a low R-squared value which we will deal with it later by performing a residuals plots analysis.
+In this *simple.model* R-squared is *0.1856* and interpretes as: ~18% of the increase in *max03* levels is due to increase in *Wx12* level. It gives a measure of how well unseen samples are likely to be predicted by the model based on the proportion of explained variance. Larger R-squared values indicate better linear model that fits the observations. Visually, it means that the observed data points are closer to the regression line. 
+
+Limitation of R-squared coefficient is that it does not provide any information whether our model is biased to the data. R-squared can be misleading when you assess the goodness-of-fit for linear regression analysis. A good model could have a low R-squared value which we will deal with it later by performing a residuals plots analysis.
 
 ### Residual Plots
+
+In linear regression, the difference between the observed value of the dependent variable and the predicted value, is called *residual*. For each value/point the mathematic expression with one independent variable is shown in 3 which applies for models with multiple regressors as well.
+
+\begin{equation} 
+ res = \hat{y} - ( \beta_{0} + \beta x )
+\end{equation}
+
+Both the sum and the mean of the residuals are equal to zero. A random scatter of residuals mean that they do not contradict the linear assumption, while distinct curved patterns suggests that a linear model is not a good fit. The following R commands allow us to create the residuals plot and Q-Q plot.
 
 ```{r residuals-plots, fig.show="hold", out.width="50%"}
 simple.model.residuals = resid(simple.model)
@@ -102,11 +114,11 @@ qqnorm(simple.model.residuals)
 #add a straight diagonal line to the plot
 qqline(simple.model.residuals) 
 ```
-The x-axis on left figure displays the fitted values and the y-axis displays the residuals. From the plot we can see that the spread of the residuals tends to be higher for higher fitted values. Additionally, we can use Q-Q plot to validate the assumption that the residuals follow a normal distribution. Closer to straight line validates this. Though, it is clear that the upper tail tends to stray away for the line.
+The x-axis on left figure displays the fitted values and the y-axis displays the residuals. From the plot we can see that the spread of the residuals tends to be higher for higher fitted values. Additionally, we can use Q-Q plot to validate the assumption that the residuals follow a normal distribution. Closer to straight line validates this. Though, it is clear that the upper tail tends to stray away from the line.
 
 ### Multiple Linear Regression
 
-We've seen previouly how to assess a linear model with on predictor. In this section we will use multiple regressors to predict *max03* by taking into consideration the 3 variables *T12*, *Ne12* and *Wx12*. Multiple linear regression model is as expressed similarily to (1) but with number of predictors p>1.
+Previously, we've seen how to assess a linear model with on predictor. In this section we will use multiple regressors to predict *max03* by taking into consideration the 3 variables *T12*, *Ne12* and *Wx12*. Multiple linear regression model is as expressed similarily to (1) but with number of predictors p>1.
 
 \begin{equation} 
  \hat{y} = \beta_{0} + \beta_{1} x_{9} + \beta_{2} x_{12} + \beta_{3} x_{15}
