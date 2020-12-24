@@ -6,8 +6,8 @@ output:
 ---
 ## Introduction
 
-In this article we aim to make an accurate linear model prediction of Ozone levels in the atmosphere based on the given dataset. At the beginning we try to gain intuition of the variables by plotting them in pairs and calculate Pearson's correlation coefficient. Then, we construct a simple linear model and study the Adjusted-R2 and R coefficients. We make residuals analysis and Q-Q plots to draw conclusions of the model.
-Finally, we follow the best regression selection method by using *regsubsets* command in order to find the best multiple linear model by examine 4 main metrics, RSS, adjusted-R2, Cp and BIC.
+In this article we aim to make an accurate linear model prediction of Ozone levels in the atmosphere based on the given dataset. At the beginning we try to gain intuition of the variables by plotting them in pairs and calculate Pearson's correlation coefficient. Then, we construct a simple linear model and study the Adjusted-R-squared and R-squared coefficients. We make residuals analysis and Q-Q plots to draw conclusions of the model.
+Finally, we follow the best regression selection method by using *regsubsets* command in order to find the best multiple linear model by examine 4 main metrics, RSS, Adjusted-R-squared, Cp and BIC.
 
 ## Load Dataset
 
@@ -19,7 +19,7 @@ attach(df)
 head(df)
 ```
 
-Second column labeled as *max03* is the depended variable which we would like to predict by constructing a model from the remaining 12 variables, *temperature(T)*, *neon(Ne)*, *Wx*, which had been collected at three different times during the day, and two nominal variables *Wind* and *Rain*.
+Second column labeled as *max03* is the depended variable which we would like to predict by constructing a model from the remaining 12 variables, *Temperature(T)*, *Neon(Ne)*, *Wx* and *max03y*, which had been collected at three different times during the day, and two nominal variables *Wind* and *Rain*.
 
 
 First we make a simple check for potential missing values in our dataset. 
@@ -29,7 +29,7 @@ head(is.na.data.frame(df))
 
 ## Undestanding the data
 
-Once we have validated the integrity of the dataset, we plot the variables in pairs. We use the built-in command *pairs* which is provided by R. In order to keep our plots simple and readable, we will plot *max03* with the 3 main variables, *Temperature*, *Ne*, *Wx* separately.
+Once we have validated the integrity of the dataset, we plot the variables in pairs. We use the built-in command *pairs* which is provided by RStudio. In order to keep our plots simple and readable, we will plot *max03* with the 3 main variables, *Temperature*, *Ne*, *Wx* and *max03y* separately.
 
 ```{r correlation-plots, fig.show="hold", out.width="50%"}
 pairs(subset(df, select = c(1,2,3,4)))
@@ -72,8 +72,8 @@ Previous analysis hinted that *Temperature* variable has the strongest correlati
 \end{equation}
 
 The objective is to fit a straight line to the data such that the sum of squared errors are minimized.
-In R, we simply use the command *lm* (linear model) to fit a linear model to observations and *summary* to get basics statistics of the fit.
-```{r}
+In RStudio, we simply use the command *lm* (linear model) to fit a linear model to observations and *summary* to get basics statistics of the fit.
+```{r fig.align='center', out.width="50%"}
 simple.model <- lm(df$maxO3 ~ df$Wx12)
 plot(df$Wx15, df$maxO3, main = "Max03 versus Wx12", xlab = "Wx @ 12:00", ylab = "Ozone levels")
 abline(simple.model, col="blue")
@@ -81,13 +81,13 @@ abline(simple.model, col="blue")
 ```{r}
 summary(simple.model) 
 ```
-The first metric we are interested in, is R-squared or coefficient of determination. R-squared represents the proportion of variance in dependent variable, in this case *max03* that has been explained by the independent variables, in this case *Wx12* in the model. Is it defined as:
+The first metric we are interested in, is R-squared or coefficient of determination. R-squared represents the proportion of variance in dependent variable, in this case *max03* that has been explained by the independent variables, in this case *Wx12* in the model. It is defined as:
 
 \begin{equation} 
 R^{2} = \frac{\text{Variance explained by the model}}{\text{Total variance}}
 \end{equation}
 
-In this *simple.model* R-squared is *0.1856* and interpretes as: ~18% of the increase in *max03* levels is due to increase in *Wx12* level. It gives a measure of how well unseen samples are likely to be predicted by the model based on the proportion of explained variance. Larger R-squared values indicate better linear model that fits the observations. Visually, it means that the observed data points are closer to the regression line. 
+In this *simple.model* R-squared is *0.1856* and interprets as: ~18% of the increase in *max03* levels is due to increase in *Wx12* level. It gives a measure of how well unseen samples are likely to be predicted by the model based on the proportion of explained variance. Larger R-squared values indicate better linear model that fits the observations. Visually, it means that the observed data points are closer to the regression line. 
 
 Limitation of R-squared coefficient is that it does not provide any information whether our model is biased to the data. R-squared can be misleading when you assess the goodness-of-fit for linear regression analysis. A good model could have a low R-squared value which we will deal with it later by performing a residuals plots analysis.
 
@@ -99,7 +99,7 @@ In linear regression, the difference between the observed value of the dependent
  res = \hat{y} - ( \beta_{0} + \beta x )
 \end{equation}
 
-Both the sum and the mean of the residuals are equal to zero. A random scatter of residuals mean that they do not contradict the linear assumption, while distinct curved patterns suggests that a linear model is not a good fit. The following R commands allow us to create the residuals plot and Q-Q plot.
+Both the sum and the mean of the residuals are equal to zero. A random scatter of residuals mean that they do not contradict the linear assumption, while distinct curved patterns suggests that a linear model is not a good fit. The following RStudio commands allow us to create the residuals and Q-Q plot.
 
 ```{r residuals-plots, fig.show="hold", out.width="50%"}
 simple.model.residuals = resid(simple.model)
@@ -118,7 +118,7 @@ The x-axis on left figure displays the fitted values and the y-axis displays the
 
 ### Multiple Linear Regression
 
-Previously, we've seen how to assess a linear model with on predictor. In this section we will use multiple regressors to predict *max03* by taking into consideration the 3 variables *T12*, *Ne12* and *Wx12*. Multiple linear regression model is as expressed similarily to (1) but with number of predictors p>1.
+Previously, we've seen how to assess a linear model with on predictor. In this section we will use multiple regressors to predict *max03* by taking into consideration the 3 variables *T12*, *Ne12* and *Wx12*. Multiple linear regression model is as expressed similarly to (1) but with number of predictors p>1.
 
 \begin{equation} 
  \hat{y} = \beta_{0} + \beta_{1} x_{9} + \beta_{2} x_{12} + \beta_{3} x_{15}
@@ -131,14 +131,16 @@ Matrix notation:
 \end{equation}
 
 
-Similarily to simple model, we use the *lm* command with the addition of two extra variables *T12* and *Ne12*.
+Similarly to simple model, we use the *lm* command with the addition of two extra variables *T12* and *Ne12*.
 
 ```{r}
 multi.model <- lm(df$maxO3 ~ df$T12 + df$Ne12 + df$Wx12)
 summary(multi.model) 
 ```
 
-As expected, R-squared value is higher than the *simple.model* as it never decreases when new predictors are added. R-squared is encouraging us to make more complex model for the prediction of *max03*. Though, that would result to *overfitting* and waste of cpu resourses in problems with more variables. Adjusted R-square coefficient is defined as shown below.
+As expected, R-squared value is higher than the *simple.model* as it never decreases when new predictors are added. R-squared is encouraging us to make more complex model for the prediction of *max03*. Though, that would result to *overfitting* and lack of generalization ability.
+
+Instead, we focus on another metric called Adjusted R-squared coefficient which is defined as shown below.
 
 \begin{equation}
 AdjustedR^{2} = 1 - (1-R^{2})\frac{n - 1}{n-p-1}
@@ -147,36 +149,49 @@ p - number of predictors
 \newline
 n - sample size.
 
-For every predictor added in the model there is a penalty factor. As the denominator decreases the fraction increases, thus R^{2}-adjusted gets smaller. In case R^{2} is significantly larger with the addition of new regressors then adding new variables to the model was worth it. Next section we will discuss how select the best model for the dataset.
+For every predictor added in the model there is a penalty factor. As the denominator decreases the fraction increases, thus adjusted-R^{2} gets smaller. In case R^{2} is significantly larger with the addition of new regressors then adding new variables to the model was worth it. Next section we will discuss how select the best model for the dataset.
 
 ### Model Selection
 
-In this section, we will present a methodology that helps assessing the quality of complex linear models as well as quantitative comparison among different models. We apply the best subset selection approach to the train data. First we create a new dataset containing only numerical features. Before continuing with the implementation it is important define model comparison metrics.
+In this section, we will present a methodology that helps assessing the quality of complex linear models as well as quantitative comparison among different models. We apply the best subset selection approach to the train data. First we create a new dataset containing only numerical features. Before continuing with the implementation it is important to define model comparison metrics.
 
 ```{r}
 df_num <- df[ , purrr::map_lgl(df, is.numeric)]
 head(df_num)
 ```
 
-The best subsets regression, *regsubsets* is a model selection approach that consists of testing all possible combinations of the regressor variables and then selecting the best model according to statistical metrics. Particularily we are interested in, *Adjusted-R2*, *RSS*, *Cp* and *BIC* which are the most commonly used metrics for measuring regression model quality and models comparison.
-As mentioned above, *Adjusted-R2* shows the percentage of variation in the outcome that can be explained by predictors variation. *Cp* and *BIC*, address the issue of overfitting, as inevitably more variables added to the model will results to smaller errors. Mathematically are expressed:
+The best subsets regression, *regsubsets* is a model selection approach that consists of testing all possible combinations of the regressor variables and then selecting the best model according to statistical metrics. Particularly, we are interested in, *Adjusted-R2*, *RSS*, *Cp* and *BIC* which are the most commonly used metrics for measuring regression model quality and models comparison.
+As mentioned above, *Adjusted-R2* shows the percentage of variance in the outcome that can be explained by predictors variance. 
+*Cp* and *BIC*, address the issue of overfitting, as inevitably more variables added to the model will results to smaller errors. Mathematically are expressed in equations 7 and 8:
 
 \begin{equation}
 Cp = \frac{RSS_{p}}{S^{2}} - n + 2(p + 1)
 \end{equation}
+
 RSS - Residual sum of squares.
 \newline
 p - number of predictors.
 \newline
 n - sample size.
 
-*Residual sum of Squares* are the deviations predicted from actual empirical values of the data. *RSS* is defined such:
+*Bayesian information criterion (BIC)* introduces a penalty term for the number of predictors in the model.
+
+\begin{equation}
+BIC = kln(n) - 2ln(\hat{L})
+\end{equation}
+
+n - sample size.
+L - the maximized value of likelihood function.
+k - number of predictors estimated by the model.
+
+*Residual sum of Squares (RSS)*  are the deviations predicted from actual empirical values of the data. *RSS* is defined such:
 
 \begin{equation}
 RSS = \sum_{i=1}^{n} \epsilon_{i} = \sum_{i=1}^{n} y_{i} - (\beta_{0} + \beta x_{i})^{2}
 \end{equation}
 
-The objective is to find a model with large *Adjusted-R2* value while keeping *Cp* and *BIC* low.
+
+The objective is to find a model such that it maximizes the *Adjusted-R2* value while keeping *Cp*, *BIC* and *RSS* values low. In RStudio we call the following method to get all possible models. We set *nvmax* to 10 to include all numeric variables of the dataset.
 
 ```{r}
 #install.packages("leaps")
@@ -185,10 +200,12 @@ models <- regsubsets(maxO3~., data=df_num, nvmax = 10)
 models.summary <- summary(models)
 models.summary
 ```
-The below command give us the R-squared value for all possible models with up to 10 predictors. As expected, every time a new variabled is included to the model the value gets higher. The model tends to learn the train set really well and it fails to generalize on new unseen data.
+The below command give us the R-squared value for all possible models with up to 10 predictors. As expected, every time a new variable is included to the model the value gets higher. The model tends to learn the train set really well and it fails to generalize on new unseen data.
 ```{r}
 models.summary$rsq
 ```
+
+Furthermore, we plot the important metrics we defined previously.
 
 ```{r best-model-plots, fig.show="hold", out.width="50%"}
 plot(models.summary$rss , xlab ="Number of Variables", ylab ="RSS ",type ="l")
@@ -205,4 +222,19 @@ plot(models.summary$adjr2 ,xlab ="Number of Variables",ylab ="Adjusted RSq", typ
 adjr2.max <- which.max (models.summary$adjr2)
 points (adjr2.max, models.summary$adjr2[adjr2.max] , col ="purple ", cex =2, pch =20)
 ```
+
+We see, based on given dataset the more suitable model should consists of 4 predictors. From the *models.summary* we find that *T12*, *Ne9*, *Wx9* and *max03y* are the variables that explain the data in best possible way while the generalization aspect of the model is strong. 
+
+```{r}
+best.model <- lm(maxO3 ~ T12 + Ne9 + Wx9 + maxO3y, data=df)
+```
+
+Finally, we test our model with *maxO3=70, T12=19, Ne9=8, Wx9=2.05*.
+
+```{r}
+new.data = data.frame(T12=19,  Ne9=8, Wx9=2.05, maxO3y=70)
+predict(best.model, new.data, interval='confidence')
+```
+
+According to our model the predicted maximum ozone level is *72.5* with 95% confidence that the value lies between *65.1* and *79.8*.
 
