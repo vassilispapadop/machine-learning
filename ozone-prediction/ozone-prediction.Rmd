@@ -238,3 +238,11 @@ predict(best.model, new.data, interval='confidence')
 
 According to our model the predicted maximum ozone level is *72.5* with 95% confidence that the value lies between *65.1* and *79.8*.
 
+## References
+
+1) https://docs.rstudio.com/
+2) https://wikipedia.com/
+3) http://personal.psu.edu/hxb11/INFORMATIONCRIT.PDF
+
+
+
