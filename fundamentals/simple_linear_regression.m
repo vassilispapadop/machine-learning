@@ -41,8 +41,8 @@ hold off
 % We could add intercept by adding "ones" matrix.
 
 % To compute coefficient estimates for a model with a constant term (intercept), include a column of ones in the matrix X.
-x2 = [ones(size(x)), x]
-a2 = regress(y,x2)
+x2 = [ones(size(x)), x];
+a2 = regress(y,x2);
 
 % Visualize results
 figure
