@@ -75,7 +75,7 @@ end
 figure
 hold on
 scatter(x,y)
-plot(x, theta(1) + theta(2) * x, '-')
+plot(x, w_current * x + b_current, '-')
 
 ylabel('Y: Height (meters)')
 xlabel('X: Age (years)')
