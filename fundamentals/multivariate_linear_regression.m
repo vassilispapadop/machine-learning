@@ -1,33 +1,42 @@
 clear all; close all; clc;
 X = load('mv_regressionx.dat'); Y = load('mv_regressiony.dat');
 N = length(X);
-X = normalize(X)
+X = normalize(X);
 X = [ones(N,1), X];
 
 
 % Multivariate stochastic gradient descent
-alpha=1.3;
-theta = rand(3, 1);
+%alpha=0.01;
+[rows,cols] = size(X);
 
 iterations = 1500;
 
-for num_iterations = 1:iterations
+A_history = zeros(N,1);
+alpha = 0.01;
+step = 0.15
+while alpha < 1.4
+    alpha
+    theta = rand(cols, 1);
+    for num_iterations = 1:iterations
 
-    % y- prediction
-    %y_current = theta(1) + theta(2) .* X(:,3);
-    % current cost of prediction
-    %cost_current = y_current - Y(:,1)
-    %j1=(1/N)*sum(cost_current);
-    %j2=(1/N)*sum((cost_current).*X(:,3));
-    % update theta
-    %theta(1)=theta(1)-alpha*(j1);
-    %theta(2)=theta(2)-alpha*(j2); 
-    
-    theta = theta - (alpha/N) * (X' * (X * theta - Y))
- 
+        result = zeros(cols,1);
+        cost = X * theta - Y;
+        for t = 1:cols
+            result(t) = sum(cost .* X(:,t));
+        end
+        % update
+        theta = theta - alpha * (1/N) * result;
+
+        %theta = theta - (alpha/N) * (X' * (X * theta - Y))
+    end
+    A_history = [X * theta, A_history];
+    alpha = alpha + step;
 end
-plot(X * theta)
+A_history = A_history(:,1:end-1);
 
+plot(A_history(:,1), '-')
+hold on
+plot(A_history(:,8), '-')
 %figure
 %hold on
 %scatter(df(:,2),df(:,4))
