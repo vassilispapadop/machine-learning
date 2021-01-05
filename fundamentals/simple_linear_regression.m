@@ -59,16 +59,14 @@ hold off
 alpha=0.07;
 theta = zeros(2,1);
 iterations = 1500;
-w_current =0;
-b_current = 0;
 for num_iterations = 1:iterations
     k=1:m;
     % y- prediction
-    y_current = theta(1) + theta(2) .* x2(k,2);
+    y_current = theta(1) + theta(2) .* x2(:,2);
     % current cost of prediction
-    cost_current = y_current - y(k);
+    cost_current = y_current - y(:,1);
     j1=(1/m)*sum(cost_current);
-    j2=(1/m)*sum((cost_current).*x2(k,2));
+    j2=(1/m)*sum((cost_current).*x2(:,2));
     % update theta
     theta(1)=theta(1)-alpha*(j1);
     theta(2)=theta(2)-alpha*(j2);  
