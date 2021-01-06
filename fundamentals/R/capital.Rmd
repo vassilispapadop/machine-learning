@@ -1,0 +1,22 @@
+---
+title: "Capital"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+# install.packages('rpart')
+# library('rpart')
+```
+
+## Dataset
+Dataset consists of two features. The numeric variable *balance* and binary variable *gender*. 
+
+```{r}
+capital <- read.table('capital.csv', header = TRUE, sep = ';')
+attach(capital)
+head(capital)
+head(is.na.data.frame(capital))
+```
+
+
