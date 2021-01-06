@@ -46,15 +46,9 @@ for alpha = alpha_values
     colNames{i} = num2str(alpha);
     i = i + 1;
 end
-Alpha_history = array2table(Alpha_history, 'VariableNames',colNames(:,1));
-plot(Alpha_history, '-') 
-%i = 1;
-%for alpha = alpha_values
-    %hold on
-%    plot(Alpha_history(:,i), '-', 'DisplayName','cos(3x)')
-%    legend(num2str(alpha))
-%    i = i + 1;
-%end
-xlabel('Iterations'); % to label X axis
-ylabel('Squared Errors'); % to label Y axis
+
+%Alpha_history = array2table(Alpha_history, 'VariableNames',colNames(:,1));
+%plot(Alpha_history, '-') 
+%xlabel('Iterations'); % to label X axis
+%ylabel('Squared Errors'); % to label Y axis
 
