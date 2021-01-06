@@ -9,15 +9,19 @@ X = [ones(N,1), X];
 %alpha=0.01;
 [rows,cols] = size(X);
 
-iterations = 1500;
+iterations = 100;
 
-A_history = zeros(N,1);
-alpha = 0.01;
-step = 0.15
-while alpha < 1.4
-    alpha
+alpha_values = linspace(.01, 1.3, 10);
+[a_rows,a_cols] = size(alpha_values);
+Alpha_history = zeros(iterations,a_cols);
+
+index = 1;
+for alpha = alpha_values
+    disp(['alpha is: [' num2str(alpha) ']']) ;
+    % initialize with random numbers
     theta = rand(cols, 1);
-    for num_iterations = 1:iterations
+    SquaredErrors_hist = zeros(iterations,1);
+    for iter = 1:iterations
 
         result = zeros(cols,1);
         cost = X * theta - Y;
@@ -26,18 +30,31 @@ while alpha < 1.4
         end
         % update
         theta = theta - alpha * (1/N) * result;
+        % average squared-errors
+        J = sum((X*theta - Y).^2)/(2*N);
+        SquaredErrors_hist(iter) = J;
+        
+        Alpha_history(iter, index) = SquaredErrors_hist(iter);
 
-        %theta = theta - (alpha/N) * (X' * (X * theta - Y))
     end
-    A_history = [X * theta, A_history];
-    alpha = alpha + step;
+    index = index + 1;
 end
-A_history = A_history(:,1:end-1);
 
-plot(A_history(:,1), '-')
-hold on
-plot(A_history(:,8), '-')
-%figure
-%hold on
-%scatter(df(:,2),df(:,4))
-%plot(df(:,2), theta(1) + theta(2) * df(:,2) + theta(3) * df(:,3) , '-')
+colNames = cell(a_cols);
+i = 1;
+for alpha = alpha_values
+    colNames{i} = num2str(alpha);
+    i = i + 1;
+end
+Alpha_history = array2table(Alpha_history, 'VariableNames',colNames(:,1));
+plot(Alpha_history, '-')
+%i = 1;
+%for alpha = alpha_values
+    %hold on
+%    plot(Alpha_history(:,i), '-', 'DisplayName','cos(3x)')
+%    legend(num2str(alpha))
+%    i = i + 1;
+%end
+xlabel('Iterations'); % to label X axis
+ylabel('Squared Errors'); % to label Y axis
+
