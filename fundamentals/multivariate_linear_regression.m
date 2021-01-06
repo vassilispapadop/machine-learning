@@ -47,7 +47,7 @@ for alpha = alpha_values
     i = i + 1;
 end
 Alpha_history = array2table(Alpha_history, 'VariableNames',colNames(:,1));
-plot(Alpha_history, '-')
+plot(Alpha_history, '-') 
 %i = 1;
 %for alpha = alpha_values
     %hold on
