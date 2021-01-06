@@ -19,4 +19,6 @@ head(capital)
 head(is.na.data.frame(capital))
 ```
 
+## Relative frequency
+We will explore *balance* in relation to *gender*. Particularly, we are interested in frequency tables, bar and pie plots.
 
