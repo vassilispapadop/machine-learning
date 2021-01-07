@@ -20,5 +20,36 @@ head(is.na.data.frame(capital))
 ```
 
 ## Relative frequency
-We will explore *balance* in relation to *gender*. Particularly, we are interested in frequency tables, bar and pie plots.
+We will explore *balance* in relation to *gender*. Particularly, we are interested in frequency tables, bar and pie plots. Frequency table is defined as:
+
+\begin{equation} 
+  \hat{\text{Relative Frequency}} = \frac{\text{Frequency}}{\text{Sample Size}}
+\end{equation}
+
+Get possible values of *gender*
+
+```{r}
+factor(capital$gender)
+```
+
+```{r}
+gender.freq = table(capital$gender)
+gender.relfreq = gender.freq / nrow(capital)
+```
+
+```{r relative-freq-plots, fig.show="hold", out.width="50%"}
+plot(gender.relfreq)
+pie(gender.relfreq)
+```
+
+```{r box-plots, fig.show="hold", out.width="50%"}
+balance = capital$balance
+balance_1 = capital[capital$gender == 1]
+balance_2 = capital[capital$gender == 2]
+boxplot(capital$balance)
+boxplot(balance_1)
+boxplot(balance_2)
+```
+
+
 
