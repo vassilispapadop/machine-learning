@@ -8,7 +8,36 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ```{r}
-df <- data("mtcars")
+head(mtcars)
 ```
+
+Check whether *mpg* comes from a Gaussian distribution with Q-Q plot.
+
+```{r mpg, fig.show="hold", out.width="50%"}
+hist(mtcars$mpg)
+qqnorm(mtcars$mpg, pch = 1)
+qqline(mtcars$mpg, lwd = 2)
+```
+
+Binary feature *am* represents *automatic* with 0 and *manual* with 1. For convenience we convert it into a categorical variable.
+```{r} 
+mtcars$am <- as.factor(mtcars$am)
+levels(mtcars$am) <- c('at','mt')
+head(mtcars)
+```
+
+We split the dataset into two subsets *Automatic(AT)* and *Manual (MT)* transmission. We want to find confidence intervals for 0.95 confidence for the mean *MPG* for both categories. In order to do this we run *t-test*
+
+```{r}
+mpg.automatic <- mtcars[mtcars$am == "at",]$mpg
+mpg.manual <- mtcars[mtcars$am == "mt",]$mpg
+t.test(mpg.automatic, mpg.manual)
+```
+
+P-value is *0.001374* which is below the 5% confidence, so alternative hypothesis is accepted. The 95% confidence interval of the difference in mean fuel consumption between *Automatic* and *Manual* transmission is between *3.2* and *11.2*
+
+
+
+
 
 
