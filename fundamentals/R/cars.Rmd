@@ -1,5 +1,7 @@
 ---
 title: "Cars"
+author:
+  - Vasileios Papadopoulos
 output: pdf_document
 ---
 

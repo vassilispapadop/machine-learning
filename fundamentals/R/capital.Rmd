@@ -1,5 +1,8 @@
 ---
 title: "Capital"
+author:
+  - Vasileios Papadopoulos
+  
 output: pdf_document
 ---
 
