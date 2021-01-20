@@ -21,28 +21,52 @@ Given the following dataset test whether there is a statistical difference betwe
 hair_color <- read.table('hair_color.txt', header = TRUE, sep = ',', row.names = 1)
 attach(hair_color)
 head(hair_color)
-head(is.na.data.frame(hair_color))
+# head(is.na.data.frame(hair_color))
 ```
-
+The data is a contingency table containing 2 groups, male and female and the observed counts of hair color ranked categorically from light to dark, *fair, red, medium, dark, jet black*.
 
 
 ## Hypothesis
 
-We have two independent populations grouped by gender. We would like to check whether gender plays any role in hair color of individuals. We set the hypothesis as follow:
+We have two independent populations grouped by gender. We would like to check whether gender plays a role in hair color of individuals. We set the hypothesis as follow.
+In Null hypothesis we assume that there is no effect whatsoever, which suggests that no statistical relationship and significance exists in observed data.
 
-In Null hypothesis we assume that there is no effect whatsoever
-H0 : Gender has no effect on hair color. There is no statistical difference in two gender groups.
-Ha : Gender has effect on hair color. There is a statistical difference in two gender groups.
+H0 : Two groups(gender) are independent.
+\newline
+Ha : Two groups(gender) are not independent.
 
-## Statistical tests
+## Analysis
 
-Since we have categorial data we use Chi-squared. Alternately, we could have used Fisher's test but the datase is too small.
+The Chi-square test of independence works by comparing the observed counts to the expected counts. Two events are independent if their joint probability is equal to the product of marginal probabilities. In order to understand Chi-squared test we will manually calculate the expected counts of the given dataset.
 
-### Chi-squared test
+We count the totals per rows and columns, which correspond to the sum of observations grouped by gender and the sum of observations grouped by each hair color type respectively. The following *RStudio* code snippet calculates the totals and shows them to table below.
+
+```{r}
+totals <- cbind(hair_color, sum=rowSums(hair_color))
+totals <- rbind(totals, colSums(hair_color))
+totals
+```
+
+Chi-squared test calculations are based on *observed counts* and *expected counts*. For example, in order to calculate the *expected count* of Gender = male and Color = medium, we need to find the joint probability, which is defined as the product of the probability of being male P_male = (2100/(1783 + 2100)) and the probability of having medium hair color P_medium = (849/(1783 + 2100)). Therefore, the expected count is the previous joint probability multiplied with the sample size. Similarly, we can compute the expected counts for all cells of the table.
+
+Additionally, we need to check how different *observed and expected* counts are. The Chi-square test formula is:
+
+\begin{equation}
+x^{2} = \sum{\frac{(observed count - expected count)^2}{expected count}}
+\end{equation}
+
+Value of x-squared can be between [0-1]. 0 indicates that there is absolutely no difference between the observed and the expected counts. x-squared can never be negative which means Chi-square test is an one-tailed test.
+
+### RStudio: Chi-squared test
+
+In RStudio, *chisq.test* command performs similar process as described above to calculate p-value.
 
 ```{r}
 tests.chi <- chisq.test(hair_color)
 tests.chi
 ```
 
-We observe that the *p-value = 0.0325* which is smaller than the significance level *a = 0.05* thus, we fail to refect the null hypothesis.
+We observe that the *p-value = 0.0325* which is smaller than the significance level *a = 0.05* thus, we reject the null hypothesis and adopt the alternative. Male/Female groups are not independent and there is a statistical significance relationship between them.
+
+## References
+https://www.sciencedirect.com/topics/earth-and-planetary-sciences/null-hypothesis
