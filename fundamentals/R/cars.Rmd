@@ -9,6 +9,9 @@ output: pdf_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
+## Dataset 
+
+Given the built-in *mtcars* dataset analyze fuel consumption between automatic and manual transmission cars.
 
 ```{r}
 head(mtcars)
@@ -39,6 +42,7 @@ t.test(mpg.automatic, mpg.manual)
 
 P-value is *0.001374* which is below the 5% confidence, so alternative hypothesis is accepted. The 95% confidence interval of the difference in mean fuel consumption between *Automatic* and *Manual* transmission is between *3.2* and *11.2*
 
+## References
 
 
 
