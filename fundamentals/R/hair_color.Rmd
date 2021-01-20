@@ -1,5 +1,8 @@
 ---
-title: "Hair color"
+title: "Difference between hair color in Females and Males"
+author:
+  - Georgios Papadopoulos
+  - Vasileios Papadopoulos
 output:
   pdf_document: default
   html_document:
@@ -10,7 +13,10 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## Data
+## Dataset
+
+Given the following dataset test whether there is a statistical difference between males and females on hair color.
+
 ```{r}
 hair_color <- read.table('hair_color.txt', header = TRUE, sep = ',', row.names = 1)
 attach(hair_color)
@@ -38,3 +44,5 @@ Since we have categorial data we use Chi-squared. Alternately, we could have use
 tests.chi <- chisq.test(hair_color)
 tests.chi
 ```
+
+We observe that the *p-value = 0.0325* which is smaller than the significance level *a = 0.05* thus, we fail to refect the null hypothesis.

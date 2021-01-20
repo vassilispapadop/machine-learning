@@ -1,6 +1,7 @@
 ---
-title: "Cars"
+title: "Fuel consumption difference between Automatic and Manual transmission"
 author:
+  - Georgios Papadopoulos
   - Vasileios Papadopoulos
 output: pdf_document
 ---
