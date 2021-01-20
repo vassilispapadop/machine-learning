@@ -1,5 +1,8 @@
 ---
 title: "Exercise 2 - Multiple Linear Regression"
+author:
+  - Georgios Papadopoulos
+  - Vasileios Papadopoulos
 output:
   pdf_document: default
   word_document: default
