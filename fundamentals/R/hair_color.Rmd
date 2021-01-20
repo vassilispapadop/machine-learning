@@ -1,6 +1,9 @@
 ---
 title: "Hair color"
-output: pdf_document
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
 ---
 
 ```{r setup, include=FALSE}
@@ -8,4 +11,30 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ## Data
+```{r}
+hair_color <- read.table('hair_color.txt', header = TRUE, sep = ',', row.names = 1)
+attach(hair_color)
+head(hair_color)
+head(is.na.data.frame(hair_color))
+```
 
+
+
+## Hypothesis
+
+We have two independent populations grouped by gender. We would like to check whether gender plays any role in hair color of individuals. We set the hypothesis as follow:
+
+In Null hypothesis we assume that there is no effect whatsoever
+H0 : Gender has no effect on hair color. There is no statistical difference in two gender groups.
+Ha : Gender has effect on hair color. There is a statistical difference in two gender groups.
+
+## Statistical tests
+
+Since we have categorial data we use Chi-squared. Alternately, we could have used Fisher's test but the datase is too small.
+
+### Chi-squared test
+
+```{r}
+tests.chi <- chisq.test(hair_color)
+tests.chi
+```

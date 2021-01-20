@@ -1,0 +1,3 @@
+gender,fair,red,medium,dark,jetblack
+male,592,119,849,504,36
+female,544,97,677,451,14
