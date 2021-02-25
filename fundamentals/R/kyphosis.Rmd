@@ -1,5 +1,5 @@
 ---
-title: "Khypnosis"
+title: "Kyphosis"
 author:
 - Georgios Papadopoulos
 - Vasileios Papadopoulos
