@@ -18,7 +18,7 @@ The dataset consists of 81 rows and 4 columns. It characterize patients and whet
 data("kyphosis",package="rpart")
 nrow(kyphosis)
 ncol(kyphosis)
-head(kyphosis)
+summary(kyphosis)
 ```
 
 ## Outliers Detection
