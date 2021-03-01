@@ -8,17 +8,116 @@ output: pdf_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+#install.packages("psych",dependencies=TRUE)
 ```
 
 
 ## Load Dataset
 
+For the purpose of the exercise we will use the package *psych*. Psych is a package developed for personality, psychometric and psychometric research. It provides useful functions for such analysis and it is a core part of International Cognitive Ability Resource (ICAR) project[1].
+
 Dataset consists of 1338 records and 7 features. The column *charges* is the independent variable, the other 6 will be used to analyze their impact to total costs.
 
 ```{r}
+require(psych)
 df <- read.csv(file = 'insurance.csv')
 nrow(df)
 ncol(df)
-head(df)
+summary(df)
 ```
+
+## Describe dataset
+
+Now we will use the *describe* method provided by psych package. It let us for a more in depth overview of the data by presenting the frequently used descriptive statistics for psychometric and psychology research. Note the symbol * indicates that the variable is categorical.
+
+```{r}
+describe(df)
+```
+
+We can see about the *mean*, *standard deviation*, *median*, *trimmed*, *mean absolute deviation*, *min*, *max*, *range*, *skew*, *kurtosis* and *standard error*. Before proceeding to model construction that it could explain/predict the dependent variable(*charges*) we need to define skewness and kyrtosis.
+
+### Skewness
+
+Skewness is described as a measure of data symmetry. A perfectly symmetrical data will have a skewness of 0 which might indicate a Normal distribution as the value of skewness for the latter is also 0. 
+
+Skewness is defined as:
+
+\begin{equation}
+a_{3} = \sum{\frac{(X_{i} - \bar{X})^{3}}{ns}}
+\end{equation}
+
+where:
+
+- *n* is the sample size
+- $X_{i}$ is the $i^{th}$ X value
+- $\bar{X}$ is the average
+- *s* is the sample standard deviation
+
+The exponent *3* is referred to the third standardized central moment for the probability model.
+
+Usually, we interpret the  its value (rule of thumb) as:
+
+- If the skewness is between -0.5 and 0.5, the data are fairly symmetrical
+- If the skewness is between -1 and – 0.5 or between 0.5 and 1, the data are moderately skewed
+- If the skewness is less than -1 or greater than 1, the data are highly skewed
+
+### Kyrtosis
+
+Kurtosis is a measure of whether a distribution is narrowly concentrated to the middle; most of the responses are in the center. In other words is a measure of peakedness or flatness of data points.
+
+Kurtosis is defined as:
+
+\begin{equation}
+a_{4} = \sum{\frac{(X_{i} - \bar{X})^{4}}{ns}}
+\end{equation}
+
+where:
+
+- *n* is the sample size
+- $X_{i}$ is the $i^{th}$ X value
+- $\bar{X}$ is the average
+- *s* is the sample standard deviation
+
+The exponent *4* is referred to the fourth standardized central moment for the probability model.
+
+Analysing the numerical variables of the dataset and the output of *psych.describe* we can see that the variable *bmi* with *skew = 0.28* and *kyrtosis = -0.06* is distributed fairly normally.
+
+
+```{r hists}
+hist(df$age)
+hist(df$bmi)
+hist(df$children)
+hist(df$charges)
+```
+
+
+## Model
+
+We will test two models, *multivariate linear regression* and *decision tree*. For the first case we need transform categorical variables into numerical
+
+
+### Multivariate Linear Regression
+```{r}
+str(df)
+```
+
+As mentioned previously, there are 3 features which are categorical. In the snipper above we see the *sex*, *smoker* and *region* have a structure of chr. We need to convert them into *Factors* in order to fit a linear regression model.We call the *as.factor* method.
+
+```{r}
+df$sex <- as.factor(df$sex)
+df$smoker <- as.factor(df$smoker)
+df$region <- as.factor(df$region)
+str(df)
+```
+
+### Fit model
+
+```{r}
+linear <- lm(df$charges~df$age + df$bmi + df$children + df$sex + df$smoker + df$region)
+summary(linear)
+```
+
+## References
+
+psych package [@https://personality-project.org/r/psych/].
 
