@@ -117,6 +117,8 @@ linear <- lm(df$charges~df$age + df$bmi + df$children + df$sex + df$smoker + df$
 summary(linear)
 ```
 
+## Decision Tree
+
 ## References
 
 psych package [@https://personality-project.org/r/psych/].
