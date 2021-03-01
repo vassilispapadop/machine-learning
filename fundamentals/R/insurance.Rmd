@@ -13,8 +13,12 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Load Dataset
 
-```{r}
+Dataset consists of 1338 records and 7 features. The column *charges* is the independent variable, the other 6 will be used to analyze their impact to total costs.
 
+```{r}
 df <- read.csv(file = 'insurance.csv')
+nrow(df)
+ncol(df)
 head(df)
 ```
+
