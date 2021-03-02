@@ -1,0 +1,49 @@
+---
+title: "Ionoshere"
+author:
+- Georgios Papadopoulos
+- Vasileios Papadopoulos
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(fig.width=12, fig.height=8) 
+#install.packages("RWeka")
+require(RWeka)
+```
+
+## Load Dataset
+
+```{r}
+df <- read.arff("ionoshere.arff")
+head(df)
+```
+
+## Methodology
+* Define performance metrics
+* Cross Validation
+* Algorithms(KNN)
+* PCA
+
+### Cross Validation
+
+The validation set approach consists of randomly splitting the data into two sets: one set is used to train the model and the remaining other set sis used to test the model. Steps:
+
+1. Traun a model on the training data set
+2. Apply the model to the test data set to predict the outcome of new unseen observations
+3. Quantify the prediction error, define performance metric
+
+### Performance metric
+For our analysis the following performance metrics will be used. 
+
+* Accuracy
+* Recall 
+* Precision
+* F1 - Score
+
+### KNN
+
+We will use k-nearest neighbors to classify the data. KNN is an non-parametric classification algorithm. Since it uses Eucledian distance we will need to scale the attributes.
+
+
