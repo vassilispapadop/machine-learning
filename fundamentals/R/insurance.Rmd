@@ -1,25 +1,32 @@
 ---
 title: "Insurance"
 author:
-  - Georgios Papadopoulos
-  - Vasileios Papadopoulos
+- Georgios Papadopoulos
+- Vasileios Papadopoulos
 output: pdf_document
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(fig.width=12, fig.height=8) 
 #install.packages("psych",dependencies=TRUE)
+#install.packages("corrplot")
+#install.packages("randomForest")
+#install.packages("randomForestExplainer")
 ```
 
 
 ## Load Dataset
 
-For the purpose of the exercise we will use the package *psych*. Psych is a package developed for personality, psychometric and psychometric research. It provides useful functions for such analysis and it is a core part of International Cognitive Ability Resource (ICAR) project[1].
+For the purpose of the exercise we will use the package *psych*. Psych is a package developed for personality, psychometric and psychology research. It provides useful functions for such analysis and it is a core part of International Cognitive Ability Resource (ICAR) project[1].
 
-Dataset consists of 1338 records and 7 features. The column *charges* is the independent variable, the other 6 will be used to analyze their impact to total costs.
+Dataset consists of 1338 records and 7 features. The column *charges* is the dependent variable, the other 6 will be used to analyze their impact to total costs.
 
 ```{r}
 require(psych)
+require(corrplot)
+require(randomForest)
+require(randomForestExplainer)
 df <- read.csv(file = 'insurance.csv')
 nrow(df)
 ncol(df)
@@ -28,7 +35,7 @@ summary(df)
 
 ## Describe dataset
 
-Now we will use the *describe* method provided by psych package. It let us for a more in depth overview of the data by presenting the frequently used descriptive statistics for psychometric and psychology research. Note the symbol * indicates that the variable is categorical.
+Now we will use the *describe* method provided by psych package. It let us for a more in depth overview of the data by presenting the most frequently used descriptive statistics for psychometric and psychology research. Note the symbol * indicates that the variable is categorical.
 
 ```{r}
 describe(df)
@@ -55,7 +62,7 @@ where:
 
 The exponent *3* is referred to the third standardized central moment for the probability model.
 
-Usually, we interpret the  its value (rule of thumb) as:
+Usually, we interpret the value (rule of thumb) as:
 
 - If the skewness is between -0.5 and 0.5, the data are fairly symmetrical
 - If the skewness is between -1 and – 0.5 or between 0.5 and 1, the data are moderately skewed
@@ -82,18 +89,35 @@ The exponent *4* is referred to the fourth standardized central moment for the p
 
 Analysing the numerical variables of the dataset and the output of *psych.describe* we can see that the variable *bmi* with *skew = 0.28* and *kyrtosis = -0.06* is distributed fairly normally.
 
+### Mean Absolute Devation(MAD)
 
-```{r hists}
+The mean absolute deviation is the average distance between each data point and the mean. It gives us an idea about the *variability* in a dataset. It is defined as:
+
+\begin{equation}
+mad = \frac{\sum{x_{i} - \bar{x}}}{n}
+\end{equation}
+
+We observe that *age* has some variability *mad* which could also be conlcuded from standard devation.
+
+### Histograms
+
+We will plot the histograms to get a better visual understanding of numerical variables of the dataset.
+
+```{r hists, figures-side, fig.show="hold", out.width="50%"}
 hist(df$age)
 hist(df$bmi)
+```
+
+```{r hists2, figures-side, fig.show="hold", out.width="50%"}
 hist(df$children)
 hist(df$charges)
 ```
 
+Variables *children* and *charges* are skewed, *bmi* as hinted above looks to follow a normal distribution and *age* is a uniform distribution.
 
 ## Model
 
-We will test two models, *multivariate linear regression* and *decision tree*. For the first case we need transform categorical variables into numerical
+We will test two models, *multivariate linear regression* and *decision tree*. For the first case we need to transform categorical variables into numerical. We use the command *str(structure)* to see the datatypes the set.
 
 
 ### Multivariate Linear Regression
@@ -101,13 +125,22 @@ We will test two models, *multivariate linear regression* and *decision tree*. F
 str(df)
 ```
 
-As mentioned previously, there are 3 features which are categorical. In the snipper above we see the *sex*, *smoker* and *region* have a structure of chr. We need to convert them into *Factors* in order to fit a linear regression model.We call the *as.factor* method.
+There are 3 features which are categorical. In the snippet above we see the *sex*, *smoker* and *region* have a structure of chr. We need to convert them into *Factors* in order to fit a linear regression model. We call the *as.factor* method.
 
-```{r}
+```{r out.width="50%"}
 df$sex <- as.factor(df$sex)
 df$smoker <- as.factor(df$smoker)
 df$region <- as.factor(df$region)
 str(df)
+```
+### Correlation matrix
+
+Dependent variable seems to have a fairly strong correlation with the *age*.
+
+```{r}
+df_num <- df[c(7,1,3,4)]
+res <- cor(df_num)
+corrplot(res, type = "upper", order = "hclust", tl.col = "black", tl.srt = 45)
 ```
 
 ### Fit model
@@ -116,10 +149,46 @@ str(df)
 linear <- lm(df$charges~df$age + df$bmi + df$children + df$sex + df$smoker + df$region)
 summary(linear)
 ```
+Linear regression mke the assumptions of normality of residuals, homoscedasticity[2] (the variability in the response variable is the same at all levels of the explanatory variable) etc. Thus, we need to analyse the residuals of the model.
 
-## Decision Tree
+```{r figures-side, fig.show="hold", out.width="50%"}
+linear$predicted <- predict(linear)
+linear$residuals <- residuals(linear)
+plot(linear, which=1, col=c("blue"))
+plot(density(linear$residuals))
+qqnorm(linear$residuals, pch = 1, frame = FALSE)
+```
+
+
+Even though the multivariate regression model is able to explain the variance in *charges* achieving $R^2 = 0.7509$ and Adjusted $R^2 = 0.7509$ it fails to full fill the assumption of normality of residuals as is shown above. 
+
+## Decision Trees
+
+In this section we will use a *Random Forest* tree with default hyper-parameters
+
+
+```{r}
+# Create a Random Forest model with default parameters
+rf <- randomForest(charges ~ ., data = df, importance = TRUE)
+rf
+```
+
+By default, number of trees is 500 and number of variables tried at each split is 2 in this case. 84% of the variance was explained.
+
+```{r randomForest figures-side, fig.show="hold", out.width="50%"}
+min_depth_frame <- min_depth_distribution(rf)
+plot_min_depth_distribution(min_depth_frame, mean_sample = "relevant_trees", k = 15)
+importance_frame <- measure_importance(rf)
+plot_multi_way_importance(importance_frame, size_measure = "no_of_nodes")
+plot_multi_way_importance(importance_frame, x_measure = "mse_increase", y_measure = "node_purity_increase", size_measure = "p_value", no_of_labels = 6)
+```
+
+
+We see that feature *smoker* has the higher node_purity_increase and mean-squared-error increase(gini index for classification). We can concluded that the variance of *charges* can be explained mainly from the variable *smoker* as it seems to be the most important feature.
 
 ## References
 
 psych package [@https://personality-project.org/r/psych/].
+
+homoscedasticity [@https://en.wikipedia.org/wiki/Homoscedasticity].
 
