@@ -1,5 +1,5 @@
 ---
-title: "Part1: Exercise5"
+title: "Part 1: Exercise 5b"
 output:
   pdf_document: default
   word_document: default
@@ -21,7 +21,7 @@ The dataset consists of 990 observations and 14 variables.
 
 ```{r}
 vowel <- read.arff("vowel.arff")
-head(vowel)
+head(vowel, 3)
 ```
 
 ## Drop columns

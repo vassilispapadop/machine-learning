@@ -1,8 +1,5 @@
 ---
-title: "Exercise 1 - Conditional Probabilities"
-author:
-  - Georgios Papadopoulos
-  - Vasileios Papadopoulos
+title: "Part 1: Exercise 1"
 output:
   pdf_document: default
   word_document: default

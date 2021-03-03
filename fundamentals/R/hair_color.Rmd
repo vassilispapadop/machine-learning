@@ -1,8 +1,5 @@
 ---
-title: "Difference between hair color in Females and Males"
-author:
-  - Georgios Papadopoulos
-  - Vasileios Papadopoulos
+title: "Part 2: Exercise 6"
 output:
   pdf_document: default
   html_document:

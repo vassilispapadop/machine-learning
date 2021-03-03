@@ -1,12 +1,10 @@
 ---
-title: "Exercise 2 - Multiple Linear Regression"
-author:
-  - Georgios Papadopoulos
-  - Vasileios Papadopoulos
+title: "Part 1: Exercise 2"
 output:
   pdf_document: default
   word_document: default
 ---
+
 ## Introduction
 
 In this article we aim to make an accurate linear model prediction of Ozone levels in the atmosphere based on the given dataset. At the beginning we try to gain intuition of the variables by plotting them in pairs and calculate Pearson's correlation coefficient. Then, we construct a simple linear model and study the Adjusted-R-squared and R-squared coefficients. We make residuals analysis and Q-Q plots to draw conclusions of the model.

@@ -1,9 +1,9 @@
 ---
-title: "Fuel consumption difference between Automatic and Manual transmission"
-author:
-  - Georgios Papadopoulos
-  - Vasileios Papadopoulos
-output: pdf_document
+title: "Part 2: Exercise 4"
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
 ---
 
 ```{r setup, include=FALSE}
@@ -41,8 +41,6 @@ t.test(mpg.automatic, mpg.manual)
 ```
 
 P-value is *0.001374* which is below the 5% confidence, so alternative hypothesis is accepted. The 95% confidence interval of the difference in mean fuel consumption between *Automatic* and *Manual* transmission is between *3.2* and *11.2*
-
-## References
 
 
 

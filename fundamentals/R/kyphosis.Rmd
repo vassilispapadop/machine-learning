@@ -1,8 +1,6 @@
 ---
-title: "Kyphosis"
+title: "Part 2: Exercise 1"
 author:
-- Georgios Papadopoulos
-- Vasileios Papadopoulos
 output: pdf_document
 ---
 
