@@ -1,0 +1,67 @@
+---
+title: "Vowel"
+author:
+- Georgios Papadopoulos
+- Vasileios Papadopoulos
+output:
+  pdf_document: default
+  word_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning=FALSE)
+knitr::opts_chunk$set(fig.width=12, fig.height=8) 
+#install.packages("factoextra")
+require(RWeka)
+require(caret)
+require(dplyr)
+require(factoextra)
+```
+
+## Load Dataset
+
+```{r}
+vowel <- read.arff("vowel.arff")
+head(vowel)
+```
+
+## Drop columns
+
+```{r}
+#vowel_drop <- subset(vowel, select = -c("Train or Test", "Speaker Number", "Sex", "Class"))
+vowel_drop <- select(vowel, -1, -2, -3, -14)
+head(vowel_drop)
+```
+
+## K Means
+
+K-means algorithm works as presented below:
+
+1. Choose groups in the feature plan randomly
+2. Minimize the distance between the cluster center and the different observations (centroid). It results in groups with observations
+3. Shift the initial centroid to the mean of the coordinates within a group.
+4. Minimize the distance according to the new centroids. New boundaries are created. Thus, observations will move from one group to another
+5. Repeat until no observation changes groups
+
+
+Since M-means is based on distances of among data points, there few different measures it take into account. For example, *Euclidean* distance is the most common method, though we could also use *Manhattan* and *Minlowski* distances as well. Below, present the mathematical formulation of *Euclidean* distance.
+
+\begin{equation}
+distance(x,y) = \sum_{i}^{n}{(x_{i} - y_{i})^{2}}
+\end{equation}
+
+
+### Optimal K
+
+One technique to choose the best k is called the elbow method. This method uses within-group homogeneity or within-group heterogeneity to evaluate the variability. Another approach is called *Silhouette*. We will measure within groups sum of squares(variance) and the quality to clusters to determine the optimal value of k.
+For this, we will install the package *factoextra*.
+
+```{r optimalk, figures-side, fig.show="hold", out.width="50%"}
+set.seed(123)
+fviz_nbclust(vowel_drop, kmeans, method = "wss")
+fviz_nbclust(vowel_drop, kmeans, method = "silhouette")
+```
+
+We see the best value of k is 3.
+
+
