@@ -1,8 +1,5 @@
 ---
-title: "Vowel"
-author:
-- Georgios Papadopoulos
-- Vasileios Papadopoulos
+title: "Part1: Exercise5"
 output:
   pdf_document: default
   word_document: default
@@ -20,6 +17,8 @@ require(factoextra)
 
 ## Load Dataset
 
+The dataset consists of 990 observations and 14 variables.
+
 ```{r}
 vowel <- read.arff("vowel.arff")
 head(vowel)
@@ -27,10 +26,12 @@ head(vowel)
 
 ## Drop columns
 
+In the first part of our analysis, we will exclude the first 3 features, *Train or Test*, *Speaker Number* and *Sex* as well as the column *Class* and then run K-means clustering algorithm. We will tune k hyper-parameter using methods *elbow* and *silhouette*.
+
+
 ```{r}
-#vowel_drop <- subset(vowel, select = -c("Train or Test", "Speaker Number", "Sex", "Class"))
 vowel_drop <- select(vowel, -1, -2, -3, -14)
-head(vowel_drop)
+head(vowel_drop, 3)
 ```
 
 ## K Means
@@ -53,8 +54,26 @@ distance(x,y) = \sum_{i}^{n}{(x_{i} - y_{i})^{2}}
 
 ### Optimal K
 
-One technique to choose the best k is called the elbow method. This method uses within-group homogeneity or within-group heterogeneity to evaluate the variability. Another approach is called *Silhouette*. We will measure within groups sum of squares(variance) and the quality to clusters to determine the optimal value of k.
+One technique to choose the best k is called the *Elbow* method. This method uses within-group homogeneity or within-group heterogeneity to evaluate the variability. Another approach is called *Silhouette*. We will measure within groups sum of squares(variance) and the quality to clusters to determine the optimal value of k.
 For this, we will install the package *factoextra*.
+
+### Elbow
+
+The elbow method is a method used to determime the number of clusters in a data set. It defines clusters in such a way that the total intra cluster variation (total within-cluster variation or total within-cluster sum of square) is minimized. We can formulate it as:
+
+\begin{equation}
+\min{\sum_{k=1}^{k} {W(C_{k})} }
+\end{equation}
+
+where $C_{k}$ is the $k^{th}$ cluster and $W(C_{k})$ is the within-cluster variation. The total within-cluster sum of square measures the compactness of the clustering and we want it to be as *small* as possible
+
+### Silhouette
+
+The average silhouette method measures the quality of a clustering. It determines how well each object lies within its cluster. A high average silhouette width indicates a good clustering. The average silhouette method computes the average silhouette of observations for different values of k. The optimal number of clusters k is the one that maximizes the average silhouette over a range of possible values for k.
+
+
+Both of the above process can be computed by the following code snippet.
+
 
 ```{r optimalk, figures-side, fig.show="hold", out.width="50%"}
 set.seed(123)
@@ -62,6 +81,77 @@ fviz_nbclust(vowel_drop, kmeans, method = "wss")
 fviz_nbclust(vowel_drop, kmeans, method = "silhouette")
 ```
 
-We see the best value of k is 3.
+We see the best value of k for the given dataset is 3.
+
+## Add Class attribute
+
+Now, we will add the *class* attribute to the dataset *vowel_drop* and will repeat the same process of previous section.
+
+```{r}
+vowel_drop_2 <- select(vowel, -1, -2, -3)
+unique(vowel_drop_2$Class)
+```
+
+We observe that the levels of the column *Class* are 11. Though, it appears that there are duplicates in classes cause of typos, case-sensitivity etc. The unique classes in the dataset are 6. We have found previously that the optimal value of k is 3. We will plot the clusters.
+
+```{r}
+k3 <- kmeans(vowel_drop, centers = 3, nstart = 25)
+fviz_cluster(k3, geom = "point",  data = vowel_drop) + ggtitle("k = 3")
+```
+
+The clusters overlap quite a bit cause of the nature of the dataset. Especially the red and green clusters appear to be misplaced. It does not seem that there is a good correlation among true-clusters and the 3 clusters of k-means.
+
+## Classification
+
+In this section we will try to address the same problem from a different perspective. We will try two classifiers(Naive Bayes, SVM) and will measure their performace.
+
+### Naive Bayes
+
+The fundamental Naive Bayes assumption is that each feature is independent and equal with each other.
+
+```{r}
+library(e1071)
+nb_model = naiveBayes(as.factor(Class) ~., data=vowel_drop_2)
+```
+
+```{r}
+modelPred <- predict(nb_model, vowel_drop_2)
+cMatrix <- table(modelPred, vowel_drop_2$Class)
+confusionMatrix(cMatrix)
+```
+
+The overall accuracy of Naive Bayes classifier is 71.4%
+
+### Support Vector Machines (SVM)
+
+We will use SVM with linear kernel and compare its accuracy to Naive Bayes.
+
+```{r}
+svmfit = svm(as.factor(Class) ~ ., data = vowel_drop_2, kernel = "linear", cost = 10, scale = FALSE)
+modelPred <- predict(svmfit, vowel_drop_2)
+cMatrix <- table(modelPred, vowel_drop_2$Class)
+confusionMatrix(cMatrix)
+```
+
+
+Accuracy is 86.4% which is better than Naive Bayes.
+
+## Add first 3 features
+
+In the first section we excluded 3 features of our analysis. Now we will see whether they could impact our analysis.
+
+```{r}
+unique(vowel$`Train or Test`)
+unique(vowel$`Speaker Number`)
+unique(vowel$Sex)
+```
+
+## References
+
+kmeans [@https://towardsdatascience.com/k-means-clustering-algorithm-applications-evaluation-methods-and-drawbacks-aa03e644b48a/].
+
+naive bayes [@https://en.wikipedia.org/wiki/Support-vector_machine].
+
+svm [@https://scikit-learn.org/stable/modules/naive_bayes.html].
 
 
