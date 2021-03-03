@@ -7,10 +7,16 @@ output: pdf_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, warning=FALSE)
 knitr::opts_chunk$set(fig.width=12, fig.height=8) 
+
 #install.packages("RWeka")
+#install.packages("caret")
+#install.packages("klaR")
 require(RWeka)
+require(corrplot)
+require(caret)
+require(klaR)
 ```
 
 ## Load Dataset
@@ -23,14 +29,14 @@ head(df)
 ## Methodology
 * Define performance metrics
 * Cross Validation
-* Algorithms(KNN)
+* Binomial Logistic Regression
 * PCA
 
 ### Cross Validation
 
 The validation set approach consists of randomly splitting the data into two sets: one set is used to train the model and the remaining other set sis used to test the model. Steps:
 
-1. Traun a model on the training data set
+1. Train a model on the training data set
 2. Apply the model to the test data set to predict the outcome of new unseen observations
 3. Quantify the prediction error, define performance metric
 
@@ -42,8 +48,78 @@ For our analysis the following performance metrics will be used.
 * Precision
 * F1 - Score
 
-### KNN
+### Exploratory data analysis
 
-We will use k-nearest neighbors to classify the data. KNN is an non-parametric classification algorithm. Since it uses Eucledian distance we will need to scale the attributes.
+We define the helper function *logistic_regression*. The function splits the data into 60% train and 40% test sets.
 
+```{r}
+logistic_regression <- function(data, var_range) {
+  set.seed(1223)
+  df_ibk <- data[var_range]
+  df_ibk$class <- df_ibk$class == 'g'
+  split=0.60
+  trainIndex <- createDataPartition(df_ibk$class, p=split, list=FALSE)
+  data_train <- df_ibk[ trainIndex,]
+  data_test <- df_ibk[-trainIndex,]
+  # train a binomial logistic regression model
+  model <- glm(class~., data=data_train, binomial)
+  #print(dim(data_train))
+  # make predictions
+  data_test$model_prob <- predict(model, data_test, type="response")
+  data_test$pred_class <- data_test$model_prob > 0.5
+  # summarize results
+  res <- confusionMatrix(as.factor(data_test$pred_class), as.factor(data_test$class))
+  accuracy <- res$overall['Accuracy']
+  #precision <- posPredValue(as.factor(data_test$pred_class), 
+  #      as.factor(data_test$class), positive=TRUE)
+  #recall <- sensitivity(as.factor(data_test$pred_class), 
+  #      as.factor(data_test$class), positive=TRUE)
+  #F1 <- (2 * precision * recall) / (precision + recall)
+  #obj <- data.frame(acc = accuracy, f1 = F1)
+  
+  return (accuracy)
+}
+
+AccuracyResults <- c()
+i = 1
+ib_tests <- c(1,2,3,4,5,6,7,8,9)
+for (val in ib_tests) {
+  r <- logistic_regression(df, c(35, 1,val))
+  AccuracyResults <- c(AccuracyResults,r)
+  i=i+1
+}
+
+plot(AccuracyResults)
+```
+
+Checking the accuracy plots we see that *IBk = 5* achieves the higher accuracy level of *0.88* on test set.
+
+```{r}
+best_ibk <- which.max(AccuracyResults)
+best_accu <- max(AccuracyResults)
+best_ibk
+best_accu
+```
+
+## Principal Component Analysis (PCA)
+
+```{r}
+library(ggplot2)
+pca <- prcomp(df[c(3:5)], scale=TRUE)
+plot(pca$x[,1], pca$x[,2])
+
+pca.var <- pca$sdev^2
+pca.var.per <- round(pca.var / sum(pca.var) * 100, 1)
+#barplot(pca.var.per, main="Sreen Plot", xlab="Principan Component", ylab="Percent Variation")
+
+pca.data <- data.frame(Sample=rownames(pca$x), X=pca$x[,1], Y=t(pca$x[,2]))
+pca.data
+
+ggplot(data=pca.data, aes(x=X, y=Y, label=Sample)) +
+  geom_text() +
+  xlab(paste("PC1 - ", pca.var.per[1], "%", sep="")) +
+  ylab(paste("PC2 - ", pca.var.per[2], "%", sep="")) +
+  theme_bw() +
+  ggtitle("PCA Graph")
+```
 
