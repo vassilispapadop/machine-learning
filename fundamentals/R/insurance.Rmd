@@ -1,8 +1,5 @@
 ---
-title: "Insurance"
-author:
-- Georgios Papadopoulos
-- Vasileios Papadopoulos
+title: "Part 2: Exercise 7"
 output: pdf_document
 ---
 
@@ -168,6 +165,7 @@ In this section we will use a *Random Forest* tree with default hyper-parameters
 
 
 ```{r}
+require(randomForest)
 # Create a Random Forest model with default parameters
 rf <- randomForest(charges ~ ., data = df, importance = TRUE)
 rf

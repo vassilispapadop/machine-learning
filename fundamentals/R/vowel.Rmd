@@ -134,7 +134,7 @@ confusionMatrix(cMatrix)
 ```
 
 
-Accuracy is 86.4% which is better than Naive Bayes.
+Accuracy is 86.4% which is better than Naive Bayes. The accuracy of SVM is quite high(rbf kernel not tested) which is expected because the algorithm by its nature is able to draw non-linear decision boundaries. In constrast, KMeans is very sensitive to noisy data.
 
 ## Add first 3 features
 
@@ -145,6 +145,18 @@ unique(vowel$`Train or Test`)
 unique(vowel$`Speaker Number`)
 unique(vowel$Sex)
 ```
+
+We run again the SVM with all features. The accuracy improves to *97.2*%
+
+```{r}
+svmfit = svm(as.factor(Class) ~ ., data = vowel, kernel = "linear", cost = 10, scale = FALSE)
+modelPred <- predict(svmfit, vowel)
+cMatrix <- table(modelPred, vowel$Class)
+confusionMatrix(cMatrix)
+```
+
+
+Since the first 3 attributes are categorical data(factors) KMeans is not applicable to them since it is a distance based algorithm.
 
 ## References
 

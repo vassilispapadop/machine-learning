@@ -9,9 +9,9 @@ X = [ones(N,1), X];
 %alpha=0.01;
 [rows,cols] = size(X);
 
-iterations = 100;
+iterations = 10;
 
-alpha_values = linspace(.01, 1.3, 10);
+alpha_values = linspace(.01, 1.3, 5);
 [a_rows,a_cols] = size(alpha_values);
 Alpha_history = zeros(iterations,a_cols);
 
@@ -47,8 +47,17 @@ for alpha = alpha_values
     i = i + 1;
 end
 
+% Visualize results
+figure
+hold on
+%plot(Alpha_history)
 %Alpha_history = array2table(Alpha_history, 'VariableNames',colNames(:,1));
-%plot(Alpha_history, '-') 
-%xlabel('Iterations'); % to label X axis
-%ylabel('Squared Errors'); % to label Y axis
+plot(Alpha_history, '-')
+xlabel('Iterations'); % to label X axis
+ylabel('Squared Errors'); % to label Y axis
+title({'Squared Errors for different learning rate, SGD method'});
+%legend({'y = sin(x)','y = cos(x)'},'Location','northeast');
+legendStrings = "a = " + string(alpha_values);
+legend(legendStrings)
+hold off
 
